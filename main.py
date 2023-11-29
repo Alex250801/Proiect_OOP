@@ -30,10 +30,12 @@ class Evaluare:
         self.materia = materia
         self.nota_obtinuta = nota_obtinuta
         self.admitere = None
+    def __repr__(self):
+        return "{} {} {}. ".format(self.elevul.name,self.materia.nume_materie,self.nota_obtinuta)
 
 studenti = []
 materii = []
-studenti_dic= {}  
+evaluari = []
 
 while True:
     print("1) Add a new student.")
@@ -61,11 +63,9 @@ while True:
             nume = input("\nIntroduceti numele elevului: ")
             clasa = input("\nIntroduceti clasa elevului: ")
             elev_nou = Elev(nume, clasa)
-            studenti.append(elev_nou.name)
-            studenti_dic[elev_nou.name] = elev_nou 
+            studenti.append(elev_nou)
             print("\nElevul introdus: {}, clasa {}".format(elev_nou.name, elev_nou.clasa))
             print("\nLista cu studentii: {}".format(studenti))
-            print(studenti_dic)
             print(" ")
 
         case "2":
@@ -82,26 +82,26 @@ while True:
         case "3":
             print("\nLista elevilor:")
             for i, elev in enumerate(studenti):
-                print("{}. {}".format(i, elev))
+                print("{}. {}".format(i, elev.name))
 
             elev_index = int(input("\nIntroduceti indexul elevului: "))
-            
+
             print("\nLista materiilor:")
             for i, materie in enumerate(materii):
                 print("{}. {}".format(i, materie))
 
             materie_index = int(input("\nIntroduceti indexul materiei: "))
 
-            elev_name = studenti[elev_index]
+            elev = studenti[elev_index]
             materie = materii[materie_index]
 
-            studenti_dic[elev_name].add_student_to_subject(materie)
-            materie.add_subject_to_student(studenti_dic[elev_name])
+            elev.add_student_to_subject(materie)
+            materie.add_subject_to_student(elev)
 
-            print("\nStudentul {} a fost adaugat la materia {}.".format(elev_name, materie.nume_materie))
-            print("\nMateria {} a fost adaugata elevului {}.".format(materie.nume_materie, elev_name))
+            print("\nStudentul {} a fost adaugat la materia {}.".format(elev.name, materie.nume_materie))
+            print("\nMateria {} a fost adaugata elevului {}.".format(materie.nume_materie, elev.name))
             print(" ")
-
+ 
         case "4":
             print("\nLista materiilor:")
             for i, materie in enumerate(materii):
@@ -111,27 +111,84 @@ while True:
 
             materie = materii[materie_index]
 
-            elevi_participanti = [student_name for student_name in studenti if materie in studenti_dic[student_name].materii]
+            elevi_participanti = [elev.name for elev in studenti if materie in elev.materii]
 
             if elevi_participanti:
                 print("\nElevii care participa la materia {}:".format(materie.nume_materie))
                 for student_name in elevi_participanti:
                     print(student_name)
             else:
-                print("\nNiciun elev nu participa la materia {}".format(materie.nume_materie))
+                print("\nNiciun elev nu participa la materia {}! :( BIG L BRO".format(materie.nume_materie))
             print(" ")
 
         case "5":
-            # adaugare nota materie
-            pass
+            print("\nLista elevilor:")
+            for i, elev in enumerate(studenti):
+                print("{}. {}".format(i, elev.name))
 
-        case "6":
-            # elevul cu cele mai mari note(media notelor max)
-            pass
+            elev_index = int(input("\nIntroduceti indexul elevului: "))
 
+            print("\nLista materiilor:")
+            for i, materie in enumerate(materii):
+                print("{}. {}".format(i, materie))
+
+            materie_index = int(input("\nIntroduceti indexul materiei: "))
+
+            nota_obtinuta = float(input("\nIntroduceti nota obtinuta: "))
+
+            elev = studenti[elev_index]
+            materie = materii[materie_index]
+
+            evaluare_noua = Evaluare(elev, materie, nota_obtinuta)
+            evaluari.append(evaluare_noua)
+
+            print("\nNota {} pentru elevul {} la materia {} a fost adaugata.".format(nota_obtinuta, elev.name, materie.nume_materie))
+            print(" ")
+                    
+
+        case "6":           
+            if not evaluari:
+                print("\nNu există încă evaluări în catalog.")
+            else:
+                def max_medie_student():
+                    note_studenti = {}
+                    for evaluare in evaluari:
+                        nume_student = evaluare.elevul.name
+                        nota = evaluare.nota_obtinuta
+                        if nume_student not in note_studenti:
+                            note_studenti[nume_student] = [nota]
+                        else:
+                            note_studenti[nume_student].append(nota)
+
+                    nota_maxima = None
+                    max = 0
+            
+                    for nume_student, note in note_studenti.items():
+                        media = sum(note) / len(note)
+                        if media > max:
+                            max = media
+                            nota_maxima = nume_student
+                        print("{} : {}".format(nume_student,media))
+                    
+                    if nota_maxima:
+                        print("Studentul cu cea mai mare medie este: {} cu media {}. ".format(nume_student,max))
+                    
+                max_medie_student()
+                        
         case "7":
-            # corigent
-            pass
+            def corigent():
+                elevi_corigenti = []
+                for evaluare in evaluari:
+                    if evaluare.nota_obtinuta < 5:
+                        elevi_corigenti.append(evaluare.elevul.name)
+            
+                if elevi_corigenti:
+                    print("\nElevii corigenti sunt: ")
+                    for corigent in elevi_corigenti:
+                        print(corigent)
+                else:
+                    print("\nNu exista elevi corigenti, au invatat prea bine toti!")
+            corigent()
 
         case "8":
             print("Exit...")
